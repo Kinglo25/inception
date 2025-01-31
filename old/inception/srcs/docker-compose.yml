@@ -1,0 +1,66 @@
+version: "3"
+
+services:
+  mariadb:
+    container_name: mariadb
+    networks:
+      - inception  # Network to which the container belongs
+    build:
+      context: requirements/mariadb  # Location of the Dockerfile
+      dockerfile: Dockerfile  # Name of the Dockerfile
+    env_file: .env  # Environment file for passing variables
+    volumes:
+      - mariadb:/var/lib/mysql  # Volume for MariaDB data
+    restart: unless-stopped  # Restart policy
+    expose:
+      - "3306"  # Port to expose
+
+  nginx:
+    container_name: nginx
+    volumes:
+      - wordpress:/var/www/wordpress  # Volume for WordPress files
+    networks:
+      - inception
+    depends_on:
+      - wordpress  # Start NGINX after WordPress
+    build:
+      context: requirements/nginx
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "443:443"  # Expose port 443 for HTTPS
+    restart: on-failure  # Restart policy
+
+  wordpress:
+    container_name: wordpress
+    env_file: .env
+    volumes:
+      - wordpress:/var/www/wordpress  # Volume for WordPress files
+    networks:
+      - inception
+    build:
+      context: requirements/wordpress
+      dockerfile: Dockerfile
+    depends_on:
+      - mariadb  # Start WordPress after MariaDB
+    restart: on-failure  # Restart policy
+    expose:
+      - "9000"  # Port to expose
+
+volumes:
+  wordpress:
+    driver: local  # Store the volume locally
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/lomajeru/data/wordpress'  # Local path for WordPress files
+  mariadb:
+    driver: local  # Store the volume locally
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/home/lomajeru/data/mariadb'  # Local path for MariaDB data
+
+networks:
+  inception:
+    driver: bridge  # Use bridge network driver
