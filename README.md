@@ -199,5 +199,3 @@ This project was developed as part of the curriculum at School 42.
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-
-This README provides a detailed overview of the Inception project, guiding both users and developers through understanding, installing, and contributing to the project. Adjust as necessary to tailor it to your project's specifics and any additional instructions from your curriculum.
