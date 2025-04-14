@@ -1,0 +1,81 @@
+# Docker Compose configuration for a WordPress deployment
+# This defines a three-tier architecture with separate containers for:
+# - Web server (Nginx)
+# - Application server (WordPress)
+# - Database server (MariaDB)
+
+services:
+
+  nginx:
+    # NGINX web server with SSL
+    image: nginx
+    build:
+      context: ./requirements/nginx  # Location of Dockerfile and build context
+    container_name: nginx
+    depends_on:
+      - wordpress  # Ensures WordPress container starts first
+    ports:
+      - "443:443" # Expose HTTPS port to host machine
+    volumes:
+      - volume_wordpress:/var/www/html  # Mount WordPress files for serving
+    networks:
+      - intra_network  # Connect to internal network
+    restart: always  # Ensures container restarts if it crashes
+    env_file: .env  # Environment variables from .env file
+
+  wordpress:  
+    # WordPress application with PHP-FPM
+    image: wordpress
+    build:
+      context: ./requirements/wordpress
+    container_name: wordpress
+    depends_on:
+      - mariadb  # Ensures database container starts first
+    ports:
+      - "9000:9000" # PHP-FPM port (internal communication with Nginx)
+    volumes:
+      - volume_wordpress:/var/www/html  # Persistent storage for WordPress files
+    networks:
+      - intra_network
+    restart: always
+    env_file: .env  # Contains WordPress and database configuration
+
+  mariadb:
+    # MariaDB database server
+    image: mariadb
+    build:
+      context: ./requirements/mariadb
+    container_name: mariadb
+    ports:
+      - "3306:3306" # Database port (internal access only)
+    volumes:
+      - volume_mariadb:/var/lib/mysql  # Persistent storage for database files
+    networks:
+      - intra_network
+    restart: always
+    env_file: .env  # Contains database credentials
+
+volumes:
+  # Persistent storage for WordPress files
+  # This ensures data is preserved between container restarts
+  volume_wordpress:
+    driver: local
+    driver_opts:
+      type: none  # Use host directory
+      o:  bind
+      device: ~/data/wordpress  # Host path
+  
+  # Persistent storage for database files
+  # This ensures database data is preserved between container restarts
+  volume_mariadb:
+    driver: local
+    driver_opts:
+      type: none  # Use host directory
+      o:  bind
+      device: ~/data/mariadb  # Host path
+
+networks:
+  # Internal network for container communication
+  # This isolates the containers from the host's network
+  intra_network:
+    driver: bridge  # Standard bridge network for container communication
