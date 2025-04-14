@@ -81,7 +81,7 @@ Before setting up the project, ensure that you have the following installed on y
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/inception.git
+   git clone https://github.com/Kingl25/inception.git
    cd inception
    ```
 
@@ -188,7 +188,7 @@ Please adhere to the coding standards and guidelines as prescribed by School 42.
 ## Author
 
 - **Your Name**  
-  [GitHub: yourusername](https://github.com/yourusername)
+  [GitHub: Kingl25](https://github.com/Kingl25)
 
 This project was developed as part of the curriculum at School 42.
 
